@@ -44,3 +44,6 @@ next-env.d.ts
 /out/
 
 !.env.example
+
+# local uploads (UploadThing used instead)
+/public/uploads/
