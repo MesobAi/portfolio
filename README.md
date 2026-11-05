@@ -13,6 +13,7 @@ Dark, shader-style landing page with an admin dashboard, all backed by **Neon Po
 - **Drizzle ORM + Neon** (`@neondatabase/serverless`) — the only database
 - **Better Auth** — single-admin dashboard protection
 - **zod + react-hook-form** — admin form validation
+- **UploadThing** (`@uploadthing/react` + `/api/uploadthing`) — image uploads for projects / research / build log (multiple pictures)
 
 ## Pages
 
@@ -37,6 +38,7 @@ cp .env.example .env.local
 #   ADMIN_EMAIL=mesobaiprojects@gmail.com
 #   ADMIN_PASSWORD=<your password>
 #   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+#   UPLOADTHING_SECRET=<your uploadthing secret>
 
 # 2. Create the tables
 npm run db:push
@@ -69,6 +71,7 @@ The admin account is provisioned automatically from those env vars on first visi
    - `BETTER_AUTH_URL` — your production URL, e.g. `https://your-domain.vercel.app`
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD` — your admin credentials
    - `NEXT_PUBLIC_SITE_URL` — e.g. `https://your-domain.vercel.app`
+   - `UPLOADTHING_SECRET` — your UploadThing secret (`https://uploadthing.com`)
 4. Deploy, then run the schema+seed against production once:
    ```bash
    DATABASE_URL="<neon-prod-url>" npm run db:push
@@ -77,10 +80,9 @@ The admin account is provisioned automatically from those env vars on first visi
 
 ## Notes
 
-- **Project images**: the dashboard supports both an image URL and a local upload
-  (saved to `public/uploads` locally). On Vercel the filesystem is read-only — prefer
-  remote image URLs, or add Vercel Blob to persist uploads.
+- **Media uploads**: projects, research and build log entries support a **gallery of multiple images**
+  (no video) uploaded through UploadThing and rendered under the description / content. Manage them from
+  the admin dashboard (`/admin`) — add / remove pictures per entry.
 - **Placeholders to fill in**: Telegram handle (`src/components/landing/social-links.tsx`),
-  university name (`src/components/landing/education-section.tsx`), and project GitHub/live URLs
-  (`src/db/seed.ts`).
+  real GitHub/live URLs (`src/db/seed.ts`), and your real admin password / secrets.
 - Database contents drive every public section; empty sections gracefully show empty states.
