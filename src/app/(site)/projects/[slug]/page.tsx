@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/landing/section-shell";
+import { MediaGallery } from "@/components/media-gallery";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -101,6 +102,9 @@ export default async function ProjectDetailPage({ params }: Props) {
             )}
           </div>
         </Section>
+
+        {/* Media (uploaded screenshots) */}
+        <MediaGallery images={project.images} title="Gallery" />
 
         {/* Stack */}
         <Section id="stack" eyebrow="Stack" title="Tech stack">

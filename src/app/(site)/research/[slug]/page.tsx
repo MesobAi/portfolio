@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/landing/section-shell";
+import { MediaGallery } from "@/components/media-gallery";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -93,6 +94,9 @@ export default async function ResearchDetailPage({ params }: Props) {
             )}
           </div>
         </Section>
+
+        {/* Media (uploaded screenshots) */}
+        <MediaGallery images={item.images} title="Gallery" />
 
         {/* Related */}
         <Section id="related" eyebrow="More" title="Explore the research index">

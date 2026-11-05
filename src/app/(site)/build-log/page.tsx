@@ -45,6 +45,19 @@ export default async function BuildLogPage() {
                   <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                     {entry.content}
                   </p>
+                  {entry.images && entry.images.length > 0 && (
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {entry.images.map((url, i) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={`${url}-${i}`}
+                          src={url}
+                          alt={`${entry.title} screenshot ${i + 1}`}
+                          className="w-full rounded-lg border border-border/60 object-cover"
+                        />
+                      ))}
+                    </div>
+                  )}
                   {entry.tags.length > 0 && (
                     <ul className="mt-4 flex flex-wrap gap-1.5">
                       {entry.tags.map((tag) => (

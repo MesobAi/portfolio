@@ -17,10 +17,8 @@ export const projects = pgTable("projects", {
   slug: text("slug").notNull().unique(),
   description: text("description").notNull(),
   imageUrl: text("image_url"),
-  techTags: text("tech_tags")
-    .array()
-    .notNull()
-    .default(sql`'{}'::text[]`),
+  images: text("images").array().notNull().default(sql`'{}'::text[]`),
+  techTags: text("tech_tags").array().notNull().default(sql`'{}'::text[]`),
   githubUrl: text("github_url"),
   liveUrl: text("live_url"),
   featured: boolean("featured").notNull().default(false),
@@ -36,10 +34,8 @@ export const research = pgTable("research", {
   title: text("title").notNull(),
   summary: text("summary").notNull(),
   imageUrl: text("image_url"),
-  tags: text("tags")
-    .array()
-    .notNull()
-    .default(sql`'{}'::text[]`),
+  images: text("images").array().notNull().default(sql`'{}'::text[]`),
+  tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
   published: boolean("published").notNull().default(true),
   orderIndex: integer("order_index").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -50,10 +46,8 @@ export const buildLog = pgTable("build_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  tags: text("tags")
-    .array()
-    .notNull()
-    .default(sql`'{}'::text[]`),
+  images: text("images").array().notNull().default(sql`'{}'::text[]`),
+  tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
   published: boolean("published").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -67,10 +61,7 @@ export const experience = pgTable("experience", {
   startDate: date("start_date").notNull(),
   endDate: date("end_date"),
   description: text("description").notNull(),
-  techTags: text("tech_tags")
-    .array()
-    .notNull()
-    .default(sql`'{}'::text[]`),
+  techTags: text("tech_tags").array().notNull().default(sql`'{}'::text[]`),
   published: boolean("published").notNull().default(true),
   orderIndex: integer("order_index").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -137,7 +128,6 @@ export const verification = pgTable("verification", {
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type Project = typeof projects.$inferSelect;
