@@ -12,9 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ImagesManager } from "@/components/admin/images-manager";
 import { cn } from "@/lib/utils";
 
-export type FieldType = "text" | "textarea" | "date" | "number" | "switch" | "tags" | "image";
+export type FieldType = "text" | "textarea" | "date" | "number" | "switch" | "tags" | "image" | "images";
 
 export type FieldDef = {
   name: string;
@@ -209,6 +210,13 @@ function EntityForm<T extends { id: string } & Record<string, unknown>>({
         {config.fields.map((field) => (
           <div key={field.name} className={cn("grid gap-2", field.span === 2 && "sm:col-span-2")}>
             <Label htmlFor={`${config.key}-${field.name}`}>{field.label}</Label>
+
+            {field.type === "images" && (
+              <ImagesManager
+                value={String(form.watch(field.name) ?? "")}
+                onChange={(v) => form.setValue(field.name, v, { shouldDirty: true })}
+              />
+            )}
 
             {field.type === "textarea" && (
               <Textarea

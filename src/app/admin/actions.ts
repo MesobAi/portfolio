@@ -47,6 +47,7 @@ export async function upsertProject(formData: FormData): Promise<ActionState> {
       slug: input.slug,
       description: input.description,
       imageUrl: input.imageUrl || null,
+      images: input.images ?? [],
       githubUrl: input.githubUrl || null,
       liveUrl: input.liveUrl || null,
       techTags: input.techTags,
@@ -89,6 +90,7 @@ export async function upsertResearch(formData: FormData): Promise<ActionState> {
       title: input.title,
       summary: input.summary,
       imageUrl: input.imageUrl || null,
+      images: input.images ?? [],
       tags: input.tags,
       published: input.published,
       orderIndex: input.orderIndex,
@@ -126,6 +128,7 @@ export async function upsertBuildLog(formData: FormData): Promise<ActionState> {
     const values = {
       title: input.title,
       content: input.content,
+      images: input.images ?? [],
       tags: input.tags,
       published: input.published,
       updatedAt: new Date(),

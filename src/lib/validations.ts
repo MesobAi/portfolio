@@ -27,6 +27,16 @@ const tagsField = z
       .filter(Boolean)
   );
 
+const imagesField = z
+  .string()
+  .default("")
+  .transform((s) =>
+    s
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+  );
+
 export const projectSchema = z.object({
   title: z.string().min(2).max(120),
   slug: z
@@ -36,6 +46,7 @@ export const projectSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Lowercase letters, numbers and dashes only"),
   description: z.string().min(10).max(2000),
   imageUrl: z.union([z.string().url(), z.literal("")]).optional(),
+  images: imagesField,
   githubUrl: z.union([z.string().url(), z.literal("")]).optional(),
   liveUrl: z.union([z.string().url(), z.literal("")]).optional(),
   techTags: tagsField,
@@ -57,6 +68,7 @@ export const researchSchema = z.object({
   title: z.string().min(2).max(160),
   summary: z.string().min(10).max(6000),
   imageUrl: z.union([z.string().url(), z.literal("")]).optional(),
+  images: imagesField,
   tags: tagsField,
   published: z.boolean().default(true),
   orderIndex: z.coerce.number().int().min(0).max(999).default(0),
@@ -70,6 +82,7 @@ export type ResearchInput = z.infer<typeof researchSchema>;
 export const buildLogSchema = z.object({
   title: z.string().min(2).max(160),
   content: z.string().min(10).max(10000),
+  images: imagesField,
   tags: tagsField,
   published: z.boolean().default(true),
   id: z.string().uuid().optional(),
