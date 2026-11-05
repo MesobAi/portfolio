@@ -34,7 +34,7 @@ export function MediaUploader({
     e.target.value = "";
     if (files.length === 0) return;
     setProgress(0);
-    const result = await startUpload(files);
+    const result = await startUpload(files.slice(0, 1));
     setProgress(100);
     const urls = (result ?? [])
       .map((f) => f.ufsUrl ?? f.url)
@@ -56,7 +56,6 @@ export function MediaUploader({
           ref={inputRef}
           type="file"
           accept="image/*"
-          multiple
           className="hidden"
           disabled={isUploading}
           onChange={handleUpload}

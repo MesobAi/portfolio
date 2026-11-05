@@ -18,10 +18,7 @@ export function ImagesManager({ value, onChange, label, className }: ImagesManag
     .filter(Boolean);
 
   function handleUploadComplete(newUrls: string[]) {
-    const additions = newUrls.filter((u) => !urls.includes(u));
-    if (additions.length > 0) {
-      onChange([...urls, ...additions].join(", "));
-    }
+    onChange([...urls, ...newUrls].join(", "));
   }
 
   function removeImage(urlToRemove: string) {
@@ -51,7 +48,7 @@ export function ImagesManager({ value, onChange, label, className }: ImagesManag
       <div className="flex items-center gap-2">
         <MediaUploader onUploadComplete={handleUploadComplete} />
         <span className="text-xs text-muted-foreground">
-          {label ?? "Add images"} — multiple pictures supported.
+          {label ?? "Add images"} — one at a time, multiple total.
         </span>
       </div>
     </div>
