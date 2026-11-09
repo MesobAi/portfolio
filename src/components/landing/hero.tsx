@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
+import type { Profile } from "@/db/schema";
 import { SocialLinks } from "@/components/landing/social-links";
 import { ShaderBackground } from "@/components/landing/shader-background";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-export function Hero() {
+export function Hero({ profile }: { profile: Profile }) {
   const reduce = useReducedMotion();
   const wrap = reduce
     ? { visible: {} }
@@ -37,16 +38,19 @@ export function Hero() {
           variants={item}
           className="max-w-4xl text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
         >
-          Nebiyou Daniel
+          {profile.fullName}
         </motion.h1>
 
         <motion.p variants={item} className="mt-3 text-xl font-semibold text-primary sm:text-2xl md:text-3xl">
-          Backend Engineer &amp; AI Developer
+          {profile.title}
         </motion.p>
 
         <motion.p variants={item} className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          I design and build reliable backend systems — APIs, data pipelines, databases — and
-          ship AI-powered products with them. Based in Addis Ababa, Ethiopia.
+          {profile.heroLine}
+        </motion.p>
+
+        <motion.p variants={item} className="mt-2 font-mono text-sm text-muted-foreground">
+          {profile.location}
         </motion.p>
 
         <motion.div variants={item} className="mt-8 flex flex-wrap items-center gap-3">
@@ -69,7 +73,7 @@ export function Hero() {
         </motion.div>
 
         <motion.p variants={item} className="mt-10 font-mono text-sm text-muted-foreground">
-          <span className="text-accent">&gt;</span> Learn More. Build Better.
+          <span className="text-accent">&gt;</span> {profile.tagline}
         </motion.p>
       </motion.div>
 
