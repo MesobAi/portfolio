@@ -3,15 +3,29 @@
 import {
   deleteBuildLog,
   deleteExperience,
+  deleteHighlight,
   deleteProject,
   deleteResearch,
   upsertBuildLog,
   upsertExperience,
+  upsertHighlight,
   upsertProject,
   upsertResearch,
 } from "@/app/admin/actions";
-import type { BuildLogEntry, ExperienceEntry, Project, ResearchItem } from "@/db/schema";
-import { buildLogSchema, experienceSchema, projectSchema, researchSchema } from "@/lib/validations";
+import type {
+  BuildLogEntry,
+  ExperienceEntry,
+  Highlight,
+  Project,
+  ResearchItem,
+} from "@/db/schema";
+import {
+  buildLogSchema,
+  experienceSchema,
+  highlightSchema,
+  projectSchema,
+  researchSchema,
+} from "@/lib/validations";
 import type { EntityConfig } from "@/components/admin/entity-manager";
 
 export const projectConfig: EntityConfig<Project> = {
@@ -27,7 +41,7 @@ export const projectConfig: EntityConfig<Project> = {
     { name: "slug", label: "Slug", type: "text", required: true, placeholder: "hulu-code" },
     { name: "description", label: "Description", type: "textarea", required: true, span: 2, rows: 3 },
     { name: "imageUrl", label: "Image", type: "image", span: 2 },
-    { name: "images", label: "Images (gallery)", type: "images", span: 2 },
+    { name: "images", label: "Gallery photos (up to 4)", type: "images", span: 2 },
     { name: "githubUrl", label: "GitHub URL", type: "text", placeholder: "https://github.com/…" },
     { name: "liveUrl", label: "Live URL", type: "text", placeholder: "https://…" },
     { name: "techTags", label: "Tech tags (comma separated)", type: "tags", span: 2, placeholder: "Go, Next.js, Postgres" },
@@ -65,7 +79,6 @@ export const researchConfig: EntityConfig<ResearchItem> = {
     { name: "title", label: "Title", type: "text", required: true, span: 2 },
     { name: "summary", label: "Summary", type: "textarea", required: true, span: 2, rows: 4 },
     { name: "imageUrl", label: "Image", type: "image", span: 2 },
-    { name: "images", label: "Images (gallery)", type: "images", span: 2 },
     { name: "tags", label: "Tags (comma separated)", type: "tags", span: 2 },
     { name: "orderIndex", label: "Order", type: "number" },
     { name: "published", label: "Published", type: "switch" },
@@ -95,13 +108,14 @@ export const buildLogConfig: EntityConfig<BuildLogEntry> = {
   fields: [
     { name: "title", label: "Title", type: "text", required: true, span: 2 },
     { name: "content", label: "Content", type: "textarea", required: true, span: 2, rows: 5 },
-    { name: "images", label: "Images (gallery)", type: "images", span: 2 },
+    { name: "imageUrl", label: "Image", type: "image", span: 2 },
     { name: "tags", label: "Tags (comma separated)", type: "tags", span: 2 },
     { name: "published", label: "Published", type: "switch" },
   ],
   toFormValues: (row) => ({
     title: row.title,
     content: row.content,
+    imageUrl: row.imageUrl ?? "",
     images: (row.images ?? []).join(", "),
     tags: row.tags.join(", "),
     published: row.published,
@@ -143,3 +157,65 @@ export const experienceConfig: EntityConfig<ExperienceEntry> = {
   listTitle: (row) => `${row.role} @ ${row.company}`,
   listSubtitle: (row) => row.description,
 };
+
+/* ------------------------------ Highlights ----------------------------- */
+
+function makeHighlightConfig(
+  group: "why-i-build" | "how-i-work" | "fuel",
+  singular: string,
+  emptyHint: string
+): EntityConfig<Highlight> {
+  return {
+    key: group,
+    singular,
+    emptyHint,
+    schema: highlightSchema,
+    upsert: upsertHighlight,
+    remove: deleteHighlight,
+    publishedFlag: "published",
+    hiddenValues: { group },
+    fields: [
+      { name: "title", label: "Title", type: "text", required: true, span: 2 },
+      { name: "description", label: "Description", type: "textarea", required: true, span: 2, rows: 4 },
+      {
+        name: "linkLabel",
+        label: "Link label",
+        type: "text",
+        help: "Optional. Shown when a link is set (e.g. “View project”).",
+      },
+      {
+        name: "linkHref",
+        label: "Link URL",
+        type: "text",
+        placeholder: "/projects/hulu-code or https://…",
+      },
+      { name: "orderIndex", label: "Order", type: "number" },
+      { name: "published", label: "Published", type: "switch" },
+    ],
+    toFormValues: (row) => ({
+      group: row.group,
+      title: row.title,
+      description: row.description,
+      linkLabel: row.linkLabel ?? "",
+      linkHref: row.linkHref ?? "",
+      orderIndex: row.orderIndex,
+      published: row.published,
+    }),
+    listTitle: (row) => row.title,
+    listSubtitle: (row) => row.description,
+  };
+}
+
+export const whyIBuildConfig = makeHighlightConfig(
+  "why-i-build",
+  "Why I build card",
+  "No “why I build” cards yet."
+);
+
+export const howIWorkConfig = makeHighlightConfig(
+  "how-i-work",
+  "How I work card",
+  "No “how I work” cards yet."
+);
+
+export const fuelConfig = makeHighlightConfig("fuel", "Fuel card", "No fuel cards yet.");

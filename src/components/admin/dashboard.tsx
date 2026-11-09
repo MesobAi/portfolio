@@ -11,11 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   buildLogConfig,
   experienceConfig,
+  fuelConfig,
+  howIWorkConfig,
   projectConfig,
   researchConfig,
+  whyIBuildConfig,
 } from "@/components/admin/entity-configs";
 import { EntityManager } from "@/components/admin/entity-manager";
 import { MessagesManager } from "@/components/admin/messages-manager";
+import { ProfileManager } from "@/components/admin/profile-manager";
 
 type AdminDataTyped = Omit<AdminData, never> & Record<string, unknown>;
 
@@ -43,7 +47,7 @@ export function AdminDashboard({ data }: { data: AdminDataTyped }) {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage projects, research, build log, experience, and contact messages.
+            Manage your profile, story sections, projects, research, build log, experience, and contact messages.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -69,9 +73,13 @@ export function AdminDashboard({ data }: { data: AdminDataTyped }) {
         ))}
       </div>
 
-      <Tabs defaultValue="projects">
+      <Tabs defaultValue="profile">
         <TabsList className="flex-wrap">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
+          <TabsTrigger value="why-i-build">Why I Build</TabsTrigger>
+          <TabsTrigger value="how-i-work">How I Work</TabsTrigger>
+          <TabsTrigger value="fuel">Fuel</TabsTrigger>
           <TabsTrigger value="research">Research</TabsTrigger>
           <TabsTrigger value="build-log">Build Log</TabsTrigger>
           <TabsTrigger value="experience">Experience</TabsTrigger>
@@ -83,8 +91,29 @@ export function AdminDashboard({ data }: { data: AdminDataTyped }) {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="profile" className="mt-4">
+          <ProfileManager profile={data.profile} />
+        </TabsContent>
         <TabsContent value="projects" className="mt-4">
           <EntityManager config={projectConfig} rows={data.projects} />
+        </TabsContent>
+        <TabsContent value="why-i-build" className="mt-4">
+          <EntityManager
+            config={whyIBuildConfig}
+            rows={data.highlights.filter((item) => item.group === "why-i-build")}
+          />
+        </TabsContent>
+        <TabsContent value="how-i-work" className="mt-4">
+          <EntityManager
+            config={howIWorkConfig}
+            rows={data.highlights.filter((item) => item.group === "how-i-work")}
+          />
+        </TabsContent>
+        <TabsContent value="fuel" className="mt-4">
+          <EntityManager
+            config={fuelConfig}
+            rows={data.highlights.filter((item) => item.group === "fuel")}
+          />
         </TabsContent>
         <TabsContent value="research" className="mt-4">
           <EntityManager config={researchConfig} rows={data.research} />
