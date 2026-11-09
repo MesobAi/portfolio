@@ -46,9 +46,47 @@ export const buildLog = pgTable("build_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  imageUrl: text("image_url"),
   images: text("images").array().notNull().default(sql`'{}'::text[]`),
   tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
   published: boolean("published").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/* ------------------------------ Profile -------------------------------- */
+/* Single-row site profile: hero copy, story, mission, motto, traits.      */
+
+export const profile = pgTable("profile", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  fullName: text("full_name").notNull(),
+  title: text("title").notNull(),
+  tagline: text("tagline").notNull(),
+  location: text("location").notNull(),
+  traits: text("traits").array().notNull().default(sql`'{}'::text[]`),
+  heroLine: text("hero_line").notNull(),
+  story: text("story").notNull(),
+  mission: text("mission").notNull(),
+  vision: text("vision").notNull(),
+  startup: text("startup").notNull(),
+  motto: text("motto").notNull(),
+  mottoAttribution: text("motto_attribution"),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/* ----------------------------- Highlights ------------------------------ */
+/* Story cards grouped by section: why-i-build, how-i-work, fuel.          */
+
+export const highlights = pgTable("highlights", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  group: text("group").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  linkLabel: text("link_label"),
+  linkHref: text("link_href"),
+  published: boolean("published").notNull().default(true),
+  orderIndex: integer("order_index").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -132,6 +170,8 @@ export const verification = pgTable("verification", {
 });
 
 export type Project = typeof projects.$inferSelect;
+export type Profile = typeof profile.$inferSelect;
+export type Highlight = typeof highlights.$inferSelect;
 export type ResearchItem = typeof research.$inferSelect;
 export type BuildLogEntry = typeof buildLog.$inferSelect;
 export type ExperienceEntry = typeof experience.$inferSelect;

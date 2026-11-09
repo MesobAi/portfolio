@@ -4,35 +4,68 @@ import { db } from "@/db";
 import {
   buildLog,
   experience,
+  highlights,
   messages,
+  profile,
   projects,
   research,
   user,
   type BuildLogEntry,
   type ExperienceEntry,
+  type Highlight,
   type Message,
+  type Profile,
   type Project,
   type ResearchItem,
 } from "@/db/schema";
+import { DEFAULT_HIGHLIGHTS, DEFAULT_PROFILE } from "@/lib/content-defaults";
+
+const FALLBACK_PROFILE: Profile = {
+  ...DEFAULT_PROFILE,
+  id: "default",
+  updatedAt: new Date(0),
+};
+
+const FALLBACK_HIGHLIGHTS: Highlight[] = DEFAULT_HIGHLIGHTS.map((item, index) => ({
+  ...item,
+  id: `default-${index}`,
+  createdAt: new Date(0),
+  updatedAt: new Date(0),
+}));
 
 export type SiteData = {
+  profile: Profile;
   projects: Project[];
   research: ResearchItem[];
   buildLog: BuildLogEntry[];
   experience: ExperienceEntry[];
+  highlights: Highlight[];
 };
 
 export const EMPTY_SITE_DATA: SiteData = {
+  profile: FALLBACK_PROFILE,
   projects: [],
   research: [],
   buildLog: [],
   experience: [],
+  highlights: FALLBACK_HIGHLIGHTS,
 };
+
+/** Fetch the single profile row; falls back to the canonical content. */
+export async function getProfile(): Promise<Profile> {
+  try {
+    const rows = await db.select().from(profile).limit(1);
+    return rows[0] ?? FALLBACK_PROFILE;
+  } catch (error) {
+    console.error("[profile] failed to load:", error);
+    return FALLBACK_PROFILE;
+  }
+}
 
 /** Fetch published content for public pages; survives an unreachable/empty DB. */
 export async function getSiteData(): Promise<SiteData> {
   try {
-    const [p, r, b, e] = await Promise.all([
+    const [p, r, b, e, pr, h] = await Promise.all([
       db
         .select()
         .from(projects)
@@ -53,8 +86,21 @@ export async function getSiteData(): Promise<SiteData> {
         .from(experience)
         .where(eq(experience.published, true))
         .orderBy(desc(experience.startDate)),
+      db.select().from(profile).limit(1),
+      db
+        .select()
+        .from(highlights)
+        .where(eq(highlights.published, true))
+        .orderBy(highlights.orderIndex, highlights.createdAt),
     ]);
-    return { projects: p, research: r, buildLog: b, experience: e };
+    return {
+      profile: pr[0] ?? FALLBACK_PROFILE,
+      projects: p,
+      research: r,
+      buildLog: b,
+      experience: e,
+      highlights: h,
+    };
   } catch (error) {
     console.error("[site data] failed to load:", error);
     return EMPTY_SITE_DATA;
@@ -76,12 +122,15 @@ export async function getBuildLogPage(limit = 50): Promise<BuildLogEntry[]> {
 }
 
 /** Everything for the admin dashboard (drafts included). */
-export type AdminData = SiteData & { messages: Message[] };
+export type AdminData = SiteData & { messages: Message[]; highlights: Highlight[] };
 
 export async function getAdminData(): Promise<AdminData> {
   const base = await getSiteData();
-  const msgs = await db.select().from(messages).orderBy(desc(messages.createdAt));
-  return { ...base, messages: msgs };
+  const [msgs, allHighlights] = await Promise.all([
+    db.select().from(messages).orderBy(desc(messages.createdAt)),
+    db.select().from(highlights).orderBy(highlights.group, highlights.orderIndex),
+  ]);
+  return { ...base, messages: msgs, highlights: allHighlights };
 }
 
 export async function getAdminStats() {

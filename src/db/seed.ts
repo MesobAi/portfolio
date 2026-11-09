@@ -10,6 +10,7 @@ config({ path: ".env.local" });
 import { and, eq } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { DEFAULT_BUILD_LOG, DEFAULT_HIGHLIGHTS, DEFAULT_PROFILE } from "../lib/content-defaults";
 import * as schema from "./schema";
 
 if (!process.env.DATABASE_URL) {
@@ -200,6 +201,34 @@ async function seedExperience() {
   }
 }
 
+async function seedProfile() {
+  const existing = await db.select({ id: schema.profile.id }).from(schema.profile).limit(1);
+  if (existing.length > 0) {
+    console.log("· profile already seeded");
+    return;
+  }
+  await db.insert(schema.profile).values(DEFAULT_PROFILE);
+  console.log("+ profile");
+}
+
+async function seedHighlights() {
+  for (const row of DEFAULT_HIGHLIGHTS) {
+    const existing = await db
+      .select({ id: schema.highlights.id })
+      .from(schema.highlights)
+      .where(
+        and(eq(schema.highlights.group, row.group), eq(schema.highlights.title, row.title))
+      )
+      .limit(1);
+    if (existing.length === 0) {
+      await db.insert(schema.highlights).values(row);
+      console.log(`+ ${row.group}: ${row.title}`);
+    } else {
+      console.log(`· ${row.group} exists: ${row.title}`);
+    }
+  }
+}
+
 async function seedBuildLog() {
   const rows: (typeof schema.buildLog.$inferInsert)[] = [
     {
@@ -220,19 +249,28 @@ async function seedBuildLog() {
         "Prototyping a load balancer that spreads model inference across multiple machines — node health checks, queue-aware routing, and retry semantics. Early results look promising for multi-machine setups.",
       tags: ["Research", "AI Infrastructure"],
     },
+    ...DEFAULT_BUILD_LOG,
   ];
 
-  const existing = await db.select({ id: schema.buildLog.id }).from(schema.buildLog).limit(1);
-  if (existing.length > 0) {
-    console.log("· build_log already seeded");
-    return;
+  for (const row of rows) {
+    const existing = await db
+      .select({ id: schema.buildLog.id })
+      .from(schema.buildLog)
+      .where(eq(schema.buildLog.title, row.title))
+      .limit(1);
+    if (existing.length === 0) {
+      await db.insert(schema.buildLog).values(row);
+      console.log(`+ build log: ${row.title}`);
+    } else {
+      console.log(`· build log exists: ${row.title}`);
+    }
   }
-  await db.insert(schema.buildLog).values(rows);
-  console.log(`+ ${rows.length} build log entries`);
 }
 
 async function main() {
   console.log("Seeding database…");
+  await seedProfile();
+  await seedHighlights();
   await seedProjects();
   await seedResearch();
   await seedExperience();
