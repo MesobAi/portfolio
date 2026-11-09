@@ -1,21 +1,30 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm, type FieldValues } from "react-hook-form";
-import { Check, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
+import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import type { ZodType } from "zod";
 import { toast } from "sonner";
-import { uploadImage, type ActionState } from "@/app/admin/actions";
+import type { ActionState } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ImagesManager } from "@/components/admin/images-manager";
+import { GalleryImageField } from "@/components/admin/gallery-image-field";
+import { SingleImageField } from "@/components/admin/single-image-field";
 import { cn } from "@/lib/utils";
 
-export type FieldType = "text" | "textarea" | "date" | "number" | "switch" | "tags" | "image" | "images";
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "date"
+  | "number"
+  | "switch"
+  | "tags"
+  | "image"
+  | "images";
 
 export type FieldDef = {
   name: string;
@@ -41,6 +50,8 @@ export type EntityConfig<T extends FieldValues> = {
   listTitle: (row: T) => string;
   listSubtitle?: (row: T) => string;
   publishedFlag?: string;
+  /** Values injected into the form data automatically (e.g. a section group). */
+  hiddenValues?: Record<string, string>;
 };
 
 export function EntityManager<T extends { id: string } & Record<string, unknown>>({
@@ -165,7 +176,6 @@ function EntityForm<T extends { id: string } & Record<string, unknown>>({
     defaultValues: defaults,
     resolver: zodResolver(config.schema as never),
   });
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function onValid(values: Record<string, unknown>) {
     const formData = new FormData();
@@ -173,6 +183,9 @@ function EntityForm<T extends { id: string } & Record<string, unknown>>({
       if (value === undefined || value === null) continue;
       if (key === "id" && !value) continue; // omit empty id on create
       formData.set(key, String(value));
+    }
+    for (const [key, value] of Object.entries(config.hiddenValues ?? {})) {
+      formData.set(key, value);
     }
 
     startTransition(async () => {
@@ -186,19 +199,6 @@ function EntityForm<T extends { id: string } & Record<string, unknown>>({
     });
   }
 
-  async function onUpload(file: File, fieldName: string) {
-    if (!file) return;
-    const fd = new FormData();
-    fd.set("file", file);
-    const result = await uploadImage(fd);
-    if (result.url) {
-      form.setValue(fieldName, result.url, { shouldDirty: true });
-      toast.success("Image uploaded");
-    } else {
-      toast.error(result.error ?? "Upload failed");
-    }
-  }
-
   return (
     <form
       onSubmit={form.handleSubmit((values) => onValid(values as Record<string, unknown>))}
@@ -210,13 +210,6 @@ function EntityForm<T extends { id: string } & Record<string, unknown>>({
         {config.fields.map((field) => (
           <div key={field.name} className={cn("grid gap-2", field.span === 2 && "sm:col-span-2")}>
             <Label htmlFor={`${config.key}-${field.name}`}>{field.label}</Label>
-
-            {field.type === "images" && (
-              <ImagesManager
-                value={String(form.watch(field.name) ?? "")}
-                onChange={(v) => form.setValue(field.name, v, { shouldDirty: true })}
-              />
-            )}
 
             {field.type === "textarea" && (
               <Textarea
@@ -254,35 +247,31 @@ function EntityForm<T extends { id: string } & Record<string, unknown>>({
             )}
 
             {field.type === "image" && (
-              <div className="flex gap-2">
-                <Input
-                  id={`${config.key}-${field.name}`}
-                  type="text"
-                  placeholder="https://… or upload a file"
-                  {...form.register(field.name)}
-                />
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void onUpload(file, field.name);
-                    }}
+              <Controller
+                control={form.control}
+                name={field.name}
+                render={({ field: c }) => (
+                  <SingleImageField
+                    value={String(c.value ?? "")}
+                    onChange={(value) => c.onChange(value)}
+                    label={field.placeholder ?? "Choose image"}
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    aria-label="Upload image"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="size-4" />
-                  </Button>
-                </>
-              </div>
+                )}
+              />
+            )}
+
+            {field.type === "images" && (
+              <Controller
+                control={form.control}
+                name={field.name}
+                render={({ field: c }) => (
+                  <GalleryImageField
+                    value={String(c.value ?? "")}
+                    onChange={(value) => c.onChange(value)}
+                    max={4}
+                  />
+                )}
+              />
             )}
 
             {field.type === "switch" && (
@@ -330,6 +319,7 @@ function useMemoDefaults<T extends AnyEntity>(
 ): Record<string, unknown> {
   return {
     ...(row ? config.toFormValues(row) : emptyValues(config)),
+    ...config.hiddenValues,
     id: row?.id ?? "",
   };
 }
