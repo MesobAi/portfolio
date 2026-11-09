@@ -5,10 +5,21 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/db";
-import { buildLog, experience, messages, projects, research, type Message } from "@/db/schema";
+import {
+  buildLog,
+  experience,
+  highlights,
+  messages,
+  profile,
+  projects,
+  research,
+  type Message,
+} from "@/db/schema";
 import {
   buildLogSchema,
   experienceSchema,
+  highlightSchema,
+  profileSchema,
   projectSchema,
   researchSchema,
 } from "@/lib/validations";
@@ -128,6 +139,7 @@ export async function upsertBuildLog(formData: FormData): Promise<ActionState> {
     const values = {
       title: input.title,
       content: input.content,
+      imageUrl: input.imageUrl || null,
       images: input.images ?? [],
       tags: input.tags,
       published: input.published,
@@ -192,6 +204,86 @@ export async function deleteExperience(id: string): Promise<ActionState> {
     await db.delete(experience).where(eq(experience.id, id));
     revalidateAll();
     return { status: "success", message: "Experience deleted" };
+  } catch (error) {
+    return { status: "error", message: parseMessage(error) };
+  }
+}
+
+/* -------------------------------- Profile ------------------------------ */
+
+export async function upsertProfile(formData: FormData): Promise<ActionState> {
+  try {
+    await requireAdmin();
+    const input = profileSchema.parse(Object.fromEntries(formData));
+    const values = {
+      fullName: input.fullName,
+      title: input.title,
+      tagline: input.tagline,
+      location: input.location,
+      traits: input.traits,
+      heroLine: input.heroLine,
+      story: input.story,
+      mission: input.mission,
+      vision: input.vision,
+      startup: input.startup,
+      motto: input.motto,
+      mottoAttribution: input.mottoAttribution || null,
+      published: input.published,
+      updatedAt: new Date(),
+    };
+
+    let targetId = input.id;
+    if (!targetId) {
+      const existing = await db.select({ id: profile.id }).from(profile).limit(1);
+      targetId = existing[0]?.id;
+    }
+
+    if (targetId) {
+      await db.update(profile).set(values).where(eq(profile.id, targetId));
+    } else {
+      await db.insert(profile).values(values);
+    }
+    revalidateAll();
+    return { status: "success", message: "Profile updated" };
+  } catch (error) {
+    return { status: "error", message: parseMessage(error) };
+  }
+}
+
+/* ------------------------------ Highlights ----------------------------- */
+
+export async function upsertHighlight(formData: FormData): Promise<ActionState> {
+  try {
+    await requireAdmin();
+    const input = highlightSchema.parse(Object.fromEntries(formData));
+    const values = {
+      group: input.group,
+      title: input.title,
+      description: input.description,
+      linkLabel: input.linkLabel || null,
+      linkHref: input.linkHref || null,
+      published: input.published,
+      orderIndex: input.orderIndex,
+      updatedAt: new Date(),
+    };
+    if (input.id) {
+      await db.update(highlights).set(values).where(eq(highlights.id, input.id));
+    } else {
+      await db.insert(highlights).values(values);
+    }
+    revalidateAll();
+    return { status: "success", message: input.id ? "Card updated" : "Card created" };
+  } catch (error) {
+    return { status: "error", message: parseMessage(error) };
+  }
+}
+
+export async function deleteHighlight(id: string): Promise<ActionState> {
+  try {
+    await requireAdmin();
+    await db.delete(highlights).where(eq(highlights.id, id));
+    revalidateAll();
+    return { status: "success", message: "Card deleted" };
   } catch (error) {
     return { status: "error", message: parseMessage(error) };
   }

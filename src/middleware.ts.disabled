@@ -1,8 +1,9 @@
+/* 
 import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
 
 /** Soft edge check: no session cookie → redirect /admin/* to login. The admin
- * layout does the authoritative session verification server-side. */
+ * layout does the authoritative session verification server-side. 
 export function middleware(request: NextRequest) {
   const isLogin = request.nextUrl.pathname === "/admin/login";
   const hasSession = getSessionCookie(request) !== null;
@@ -27,3 +28,4 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/admin", "/admin/:path*"],
 };
+*/

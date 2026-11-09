@@ -80,6 +80,17 @@ export default async function ResearchDetailPage({ params }: Props) {
           )}
         </div>
 
+        {item.imageUrl && (
+          <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-xl border border-border/60 bg-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="absolute inset-0 size-full object-cover"
+            />
+          </div>
+        )}
+
         {/* About */}
         <Section id="overview" eyebrow="Overview" title="About this research">
           <div className="max-w-3xl space-y-4">

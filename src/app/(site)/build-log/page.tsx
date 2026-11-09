@@ -42,6 +42,14 @@ export default async function BuildLogPage() {
                     </time>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold">{entry.title}</h3>
+                  {entry.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={entry.imageUrl}
+                      alt={entry.title}
+                      className="mt-4 aspect-video w-full rounded-lg border border-border/60 object-cover"
+                    />
+                  )}
                   <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                     {entry.content}
                   </p>
