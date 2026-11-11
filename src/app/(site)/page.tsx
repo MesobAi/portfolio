@@ -22,16 +22,16 @@ export default async function HomePage() {
       <About />
       <StorySection profile={data.profile} />
       <TechStack />
-      <ExperienceTimeline items={data.experience} />
+      <EducationSection />
       <ProjectsGrid items={data.projects} />
+      <ExperienceTimeline items={data.experience} />
+      <ResearchSection items={data.research} />
       <WhyIBuild items={data.highlights.filter((item) => item.group === "why-i-build")} />
       <HowIWork items={data.highlights.filter((item) => item.group === "how-i-work")} />
-      <ResearchSection items={data.research} />
+      <BuildLogPreview items={data.buildLog} />
       <Fuel items={data.highlights.filter((item) => item.group === "fuel")} />
       <StartupSection />
       <MissionSection profile={data.profile} />
-      <BuildLogPreview items={data.buildLog} />
-      <EducationSection />
       <ContactSection />
     </>
   );

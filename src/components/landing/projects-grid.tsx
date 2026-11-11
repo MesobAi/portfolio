@@ -10,7 +10,7 @@ export function ProjectsGrid({ items }: { items: Project[] }) {
   return (
     <Section
       id="projects"
-      eyebrow="Projects"
+      eyebrow="Featured Projects"
       title="Things I've built"
       description="From AI developer tools to multi-tenant SaaS — real systems solving real problems. Click any card to read the full story."
     >

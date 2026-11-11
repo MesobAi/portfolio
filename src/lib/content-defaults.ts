@@ -18,7 +18,7 @@ export const DEFAULT_PROFILE: ProfileContent = {
   location: "Addis Ababa, Ethiopia",
   traits: ["Passionate", "Thoughtful", "Fun to be with"],
   heroLine:
-    "I've been asking how apps work since grade 6. Now I build the systems behind them.",
+    "I build backend systems, AI-powered applications, and tools that solve real-world problems. Always learning, building, and exploring how things work.",
   story:
     "I started coding in grade 6. I was curious how the apps on a phone screen work: how they know what video I like and suggest similar ones. That curiosity led me to research, then to building simple games, and then to real projects. I taught myself through freeCodeCamp, YouTube and official documentation, and today I use AI as a tutor that corrects me and explains the details. I have worked with companies in Ethiopia and the US, built payment and authentication systems, and shipped open-source tools. I am still self-taught in spirit: I try to solve a problem on my own first, then ask how others solved it and why.",
   mission:

@@ -8,9 +8,9 @@ export function ResearchSection({ items }: { items: ResearchItem[] }) {
   return (
     <Section
       id="research"
-      eyebrow="Research"
-      title="Experiments & write-ups"
-      description="Areas I'm actively researching, prototyping, and documenting. Click any card to dig deeper."
+      eyebrow="Currently Learning"
+      title="Learning & open source"
+      description="Areas I'm actively learning, prototyping, and documenting in the open. Click any card to dig deeper."
     >
       {items.length === 0 ? (
         <EmptyState>No research items published yet — check back soon.</EmptyState>

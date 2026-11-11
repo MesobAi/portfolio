@@ -23,34 +23,23 @@ const db = drizzle(neon(process.env.DATABASE_URL), { schema });
 async function seedProjects() {
   const rows: (typeof schema.projects.$inferInsert)[] = [
     {
-      title: "HULU_Code",
-      slug: "hulu-code",
+      title: "Node Agent / Team Compute Platform",
+      slug: "node-agent",
       description:
-        "Local-first AI codebase navigator — ask questions about any codebase and get grounded answers. Your source code never leaves your laptop.",
-      techTags: ["TypeScript", "LLMs", "RAG", "Local-first"],
-      githubUrl: "https://github.com/nebioudaniel", // TODO: link the real repo
+        "Part of a team compute platform: a Go agent that collects machine hardware specs and serves them over HTTP, plus a coordinator that validates worker heartbeats (CPU, RAM, active tasks). Early development.",
+      techTags: ["Go", "Distributed Systems", "HTTP", "gopsutil"],
       featured: true,
       orderIndex: 0,
-    },
-    {
-      title: "Multiverse Africa Website & Management Systems",
-      slug: "multiverse-africa",
-      description:
-        "Company website plus a vehicle and user management system with an admin dashboard, built while working at Multiverse Africa.",
-      techTags: ["TypeScript", "Next.js", "PostgreSQL", "Admin Dashboard"],
-      githubUrl: "https://github.com/nebioudaniel",
-      featured: true,
-      orderIndex: 1,
     },
     {
       title: "Tigil Reports",
       slug: "tigil-reports",
       description:
-        "AI-powered business reporting platform — turn raw business data into clear, actionable reports.",
-      techTags: ["Python", "LLMs", "OpenAI", "PostgreSQL"],
-      githubUrl: "https://github.com/nebioudaniel",
-      featured: false,
-      orderIndex: 2,
+        "AI-powered business report generation for Ethiopian companies — turn raw business data into clear, actionable reports.",
+      techTags: ["Next.js", "TypeScript", "Supabase", "Chapa", "DeepSeek"],
+      githubUrl: "https://github.com/nebioudaniel", // TODO: link the real repo
+      featured: true,
+      orderIndex: 1,
     },
     {
       title: "Bedebo",
@@ -59,8 +48,28 @@ async function seedProjects() {
         "AI-powered educational workspace designed to help students think and create instead of just handing them answers.",
       techTags: ["TypeScript", "AI", "Education", "RAG"],
       githubUrl: "https://github.com/nebioudaniel",
+      featured: true,
+      orderIndex: 2,
+    },
+    {
+      title: "HULU_Code",
+      slug: "hulu-code",
+      description:
+        "Local-first AI codebase navigator — ask questions about any codebase and get grounded answers. Your source code never leaves your laptop.",
+      techTags: ["TypeScript", "LLMs", "RAG", "Local-first"],
+      githubUrl: "https://github.com/nebioudaniel", // TODO: link the real repo
       featured: false,
       orderIndex: 3,
+    },
+    {
+      title: "Multiverse Africa Website & Management Systems",
+      slug: "multiverse-africa",
+      description:
+        "Company website plus a vehicle and user management system with an admin dashboard, built while working at Multiverse Africa.",
+      techTags: ["TypeScript", "Next.js", "PostgreSQL", "Admin Dashboard"],
+      githubUrl: "https://github.com/nebioudaniel",
+      featured: false,
+      orderIndex: 4,
     },
     {
       title: "School Management SaaS",
@@ -70,7 +79,7 @@ async function seedProjects() {
       techTags: ["TypeScript", "Better Auth", "RBAC", "Chapa", "Webhooks", "Multi-tenant"],
       githubUrl: "https://github.com/nebioudaniel",
       featured: false,
-      orderIndex: 4,
+      orderIndex: 5,
     },
   ];
 
@@ -153,7 +162,7 @@ async function seedExperience() {
     },
     {
       role: "Junior Software Engineer",
-      company: "Multiverse Africa",
+      company: "Multiverse Enterprise PLC",
       location: "Addis Ababa, Ethiopia",
       startDate: "2025-06-01",
       endDate: "2026-05-01",

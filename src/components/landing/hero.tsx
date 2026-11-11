@@ -39,31 +39,46 @@ export function Hero({ profile }: { profile: Profile }) {
           <div className="min-w-0">
             <motion.h1
               variants={item}
-              className="max-w-4xl text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl"
+              className="max-w-4xl text-4xl font-extrabold leading-[1.03] tracking-tight text-balance sm:text-6xl md:text-7xl"
             >
               {profile.fullName}
             </motion.h1>
 
-            <motion.p variants={item} className="mt-3 text-xl font-semibold text-primary sm:text-2xl md:text-3xl">
+            <motion.p
+              variants={item}
+              className="mt-4 text-lg font-semibold tracking-tight text-primary sm:text-2xl md:text-3xl"
+            >
               {profile.title}
             </motion.p>
 
-            <motion.p variants={item} className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <motion.p
+              variants={item}
+              className="mt-6 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg"
+            >
               {profile.heroLine}
             </motion.p>
 
-            <motion.p variants={item} className="mt-2 font-mono text-sm text-muted-foreground">
+            <motion.p variants={item} className="mt-3 font-mono text-sm text-foreground/55">
               {profile.location}
             </motion.p>
 
             <motion.div variants={item} className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="group">
+              <Button
+                asChild
+                size="lg"
+                className="group shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
+              >
                 <Link href="/#projects">
                   View Work
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-border/80 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary active:scale-[0.98]"
+              >
                 <Link href="/#contact">
                   <Mail className="size-4" />
                   Contact
@@ -87,16 +102,16 @@ export function Hero({ profile }: { profile: Profile }) {
             <div className="group relative isolate">
               <div
                 aria-hidden="true"
-                className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-tr from-primary/30 via-accent/10 to-primary/20 opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-90"
+                className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-tr from-primary/25 via-accent/5 to-primary/15 opacity-40 blur-2xl transition-opacity duration-500 group-hover:opacity-60"
               />
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-border/70 bg-muted shadow-[0_24px_70px_-28px_rgba(0,0,0,0.5)] ring-1 ring-black/5 dark:ring-white/10">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-border/70 bg-muted shadow-[0_24px_70px_-28px_rgba(0,0,0,0.55)] ring-1 ring-primary/20 transition-shadow duration-500 group-hover:ring-primary/35 group-hover:shadow-[0_24px_70px_-28px_rgba(0,0,0,0.55),0_0_36px_-14px_oklch(0.52_0.21_228/0.45)]">
                 <Image
                   src="/nebapic.jpg"
                   alt={`Portrait of ${profile.fullName}`}
                   fill
                   priority
                   sizes="(min-width: 1024px) 360px, (min-width: 640px) 280px, 240px"
-                  className="object-cover object-[center_25%] transition-transform duration-700 will-change-transform group-hover:scale-[1.03]"
+                  className="object-cover object-[center_25%] grayscale transition-transform duration-700 will-change-transform group-hover:scale-[1.03]"
                 />
               </div>
             </div>

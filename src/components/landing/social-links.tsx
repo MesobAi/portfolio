@@ -22,7 +22,6 @@ const links = [
   { key: "github", href: GITHUB_URL, label: "GitHub", icon: GithubIcon },
   { key: "linkedin", href: LINKEDIN_URL, label: "LinkedIn", icon: LinkedinIcon },
   { key: "email-primary", href: `mailto:${EMAIL_PRIMARY}`, label: "Email", icon: Mail },
-  { key: "email-secondary", href: `mailto:${EMAIL_SECONDARY}`, label: "Email", icon: Mail },
   { key: "telegram", href: TELEGRAM_URL, label: "Telegram", icon: Send },
   { key: "x", href: X_URL, label: "X (Twitter)", icon: XIcon },
 ];
