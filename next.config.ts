@@ -4,6 +4,15 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: false,
   partialPrefetching: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "files.edgestore.dev",
+        pathname: "/**",
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.css": {

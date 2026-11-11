@@ -12,6 +12,8 @@
     "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
+    "@edgestore/react": "^1.0.1",
+    "@edgestore/server": "^1.0.1",
     "@hookform/resolvers": "^7.0.2",
     "@neondatabase/serverless": "^1.2.0",
     "@uploadthing/react": "^7.3.3",

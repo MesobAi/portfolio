@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useEdgeStore } from "@/lib/edgestore";
 
 const MAX_SIZE = 8 * 1024 * 1024;
 
@@ -23,15 +24,17 @@ export function GalleryImageField({
   max?: number;
   label?: string;
 }) {
+  const { edgestore } = useEdgeStore();
   const [urls, setUrls] = useState(() =>
     (value ?? "").split(",").map((s) => s.trim()).filter(Boolean)
   );
   const [pending, setPending] = useState<PendingUpload[]>([]);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const remaining = max - urls.length - pending.length;
 
-  function handleFiles(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFiles(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []).filter(
       (f) => f.type.startsWith("image/")
     );
@@ -44,57 +47,43 @@ export function GalleryImageField({
       return;
     }
 
-    toUpload.forEach((file) => {
-      if (file.size > MAX_SIZE) {
-        toast.error(`${file.name} is too large (max 8 MB)`);
-        return;
+    const oversized = toUpload.filter((f) => f.size > MAX_SIZE);
+    if (oversized.length > 0) {
+      toast.error(`${oversized.map((f) => f.name).join(", ")} too large (max 8 MB)`);
+      return;
+    }
+
+    const ids = toUpload.map(
+      () => `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    );
+    setPending((prev) => [...prev, ...ids.map((id) => ({ id, progress: 0 }))]);
+    setUploading(true);
+
+    try {
+      const newUrls: string[] = [];
+      for (let i = 0; i < toUpload.length; i++) {
+        const res = await edgestore.publicImages.upload({
+          file: toUpload[i],
+          onProgressChange: (p) => {
+            const progress = Math.max(0, Math.min(100, Math.round(p)));
+            setPending((prev) =>
+              prev.map((item) => (item.id === ids[i] ? { ...item, progress } : item))
+            );
+          },
+        });
+        newUrls.push(res.url);
       }
 
-      const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/upload");
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          setPending((prev) =>
-            prev.map((p) =>
-              p.id === id
-                ? { ...p, progress: Math.round((event.loaded / event.total) * 100) }
-                : p
-            )
-          );
-        }
-      };
-
-      xhr.onload = () => {
-        setPending((prev) => prev.filter((p) => p.id !== id));
-        let payload: { url?: string; error?: string } = {};
-        try {
-          payload = JSON.parse(xhr.responseText);
-        } catch {
-          // keep defaults
-        }
-
-        if (xhr.status >= 200 && xhr.status < 300 && payload.url) {
-          const next = [...urls, payload.url];
-          setUrls(next);
-          onChange(next.join(", "));
-          toast.success("Image uploaded");
-        } else {
-          toast.error(payload.error ?? "Upload failed");
-        }
-      };
-
-      xhr.onerror = () => {
-        setPending((prev) => prev.filter((p) => p.id !== id));
-        toast.error("Upload failed");
-      };
-
-      const formData = new FormData();
-      formData.append("file", file);
-      setPending((prev) => [...prev, { id, progress: 0 }]);
-      xhr.send(formData);
-    });
+      const next = [...urls, ...newUrls];
+      setUrls(next);
+      onChange(next.join(", "));
+      toast.success(newUrls.length === 1 ? "Image uploaded" : "Images uploaded");
+    } catch {
+      toast.error("Upload failed — check your connection and try again");
+    } finally {
+      setUploading(false);
+      setPending((prev) => prev.filter((p) => !ids.includes(p.id)));
+    }
   }
 
   function removeUrl(urlToRemove: string) {
@@ -164,13 +153,14 @@ export function GalleryImageField({
             accept="image/*"
             multiple
             className="hidden"
+            disabled={uploading}
             onChange={handleFiles}
           />
           <Button
             type="button"
             variant="outline"
             size="sm"
-            disabled={remaining <= 0}
+            disabled={remaining <= 0 || uploading}
             onClick={() => inputRef.current?.click()}
           >
             <Plus className="mr-2 size-4" />

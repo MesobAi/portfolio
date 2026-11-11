@@ -2,11 +2,11 @@
 
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
-import { generateReactHelpers } from "@uploadthing/react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import type { OurFileRouter } from "@/lib/uploadthing";
+import { useEdgeStore } from "@/lib/edgestore";
 
-const { useUploadThing } = generateReactHelpers<OurFileRouter>();
+const MAX_SIZE = 8 * 1024 * 1024;
 
 export function MediaUploader({
   onUploadComplete,
@@ -17,36 +17,44 @@ export function MediaUploader({
   onUploadError?: (error: unknown) => void;
   label?: string;
 }) {
-  const { startUpload, isUploading } = useUploadThing("image", {
-    onUploadProgress: (p) => {
-      setProgress(Math.max(0, Math.min(100, Math.round(p))));
-    },
-    onUploadError: async (err) => {
-      onUploadError?.(err);
-    },
-  });
-
+  const { edgestore } = useEdgeStore();
   const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []).filter((f) => f.type.startsWith("image/"));
     e.target.value = "";
-    if (files.length === 0) return;
+    const file = files[0];
+    if (!file) return;
+
+    if (file.size > MAX_SIZE) {
+      toast.error("Max file size is 8 MB");
+      return;
+    }
+
     setProgress(0);
-    const result = await startUpload(files.slice(0, 1));
-    setProgress(100);
-    const urls = (result ?? [])
-      .map((f) => f.ufsUrl ?? f.url)
-      .filter((url): url is string => Boolean(url));
-    if (urls.length > 0) {
-      onUploadComplete?.(urls);
+    setUploading(true);
+    try {
+      const res = await edgestore.publicImages.upload({
+        file,
+        onProgressChange: (p) => {
+          setProgress(Math.max(0, Math.min(100, Math.round(p))));
+        },
+      });
+      onUploadComplete?.([res.url]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+      onUploadError?.(err);
+    } finally {
+      setUploading(false);
+      setProgress(0);
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-3">
-      {progress > 0 && progress < 100 && (
+      {uploading && progress > 0 && progress < 100 && (
         <div className="w-full bg-border rounded-full h-1.5">
           <div className="bg-primary h-1.5 rounded-full" style={{ width: `${progress}%` }} />
         </div>
@@ -57,18 +65,18 @@ export function MediaUploader({
           type="file"
           accept="image/*"
           className="hidden"
-          disabled={isUploading}
+          disabled={uploading}
           onChange={handleUpload}
         />
         <Button
           type="button"
           variant="outline"
           size="sm"
-          disabled={isUploading}
+          disabled={uploading}
           onClick={() => inputRef.current?.click()}
         >
           <Upload className="size-4" />
-          {isUploading ? "Uploading…" : label}
+          {uploading ? "Uploading…" : label}
         </Button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 import { SiteNav } from "@/components/site-nav";
 
 /** Authoritative server-side guard for every /admin/* page. */
@@ -17,9 +18,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!authed) redirect("/admin/login");
 
   return (
-    <div className="relative flex min-h-svh flex-col bg-muted/30">
-      <SiteNav />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16 pt-24 sm:px-6">{children}</main>
-    </div>
+    <EdgeStoreProvider>
+      <div className="relative flex min-h-svh flex-col bg-muted/30">
+        <SiteNav />
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16 pt-24 sm:px-6">{children}</main>
+      </div>
+    </EdgeStoreProvider>
   );
 }

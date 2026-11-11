@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { ImageIcon, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useEdgeStore } from "@/lib/edgestore";
 
 const MAX_SIZE = 8 * 1024 * 1024;
 
@@ -16,11 +17,12 @@ export function SingleImageField({
   onChange: (value: string) => void;
   label?: string;
 }) {
+  const { edgestore } = useEdgeStore();
   const [progress, setProgress] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
@@ -34,46 +36,24 @@ export function SingleImageField({
       return;
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/upload");
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        setProgress(Math.round((event.loaded / event.total) * 100));
-      }
-    };
-
-    xhr.onload = () => {
-      setUploading(false);
-      setProgress(null);
-
-      let payload: { url?: string; error?: string } = {};
-      try {
-        payload = JSON.parse(xhr.responseText);
-      } catch {
-        // keep defaults
-      }
-
-      if (xhr.status >= 200 && xhr.status < 300 && payload.url) {
-        onChange(payload.url);
-        toast.success("Image uploaded");
-      } else {
-        toast.error(payload.error ?? "Upload failed");
-      }
-    };
-
-    xhr.onerror = () => {
-      setUploading(false);
-      setProgress(null);
-      toast.error("Upload failed — check your connection and try again");
-    };
-
     setProgress(0);
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    xhr.send(formData);
+    try {
+      const res = await edgestore.publicImages.upload({
+        file,
+        onProgressChange: (p) => {
+          setProgress(Math.max(0, Math.min(100, Math.round(p))));
+        },
+      });
+      onChange(res.url);
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed — check your connection and try again");
+    } finally {
+      setUploading(false);
+      setProgress(null);
+    }
   }
 
   return (
@@ -113,7 +93,9 @@ export function SingleImageField({
               style={{ width: `${progress ?? 0}%` }}
             />
           </div>
-          <p className="text-xs text-muted-foreground">Uploading… {progress ?? 0}%</p>
+          <p className="text-xs text-muted-foreground">
+            Uploading… {progress ?? 0}%
+          </p>
         </div>
       )}
 
