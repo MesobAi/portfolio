@@ -35,21 +35,38 @@ export function Hero({ profile }: { profile: Profile }) {
         animate="visible"
         className="relative z-10 mx-auto w-full max-w-6xl px-4 py-28 sm:px-6 sm:py-32"
       >
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:gap-14 xl:gap-20">
+        <div className="max-w-3xl">
           <div className="min-w-0">
-            <motion.h1
-              variants={item}
-              className="max-w-4xl text-4xl font-extrabold leading-[1.03] tracking-tight text-balance sm:text-6xl md:text-7xl"
-            >
-              {profile.fullName}
-            </motion.h1>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <motion.div variants={item} className="shrink-0">
+                <div className="relative size-24 overflow-hidden rounded-full border border-foreground/15 bg-muted shadow-lg shadow-primary/20 ring-1 ring-primary/25 sm:size-28">
+                  <Image
+                    src="/nebapic.jpg"
+                    alt={`Portrait of ${profile.fullName}`}
+                    fill
+                    priority
+                    sizes="(min-width: 640px) 112px, 96px"
+                    className="object-cover object-[center_30%] grayscale"
+                  />
+                </div>
+              </motion.div>
 
-            <motion.p
-              variants={item}
-              className="mt-4 text-lg font-semibold tracking-tight text-primary sm:text-2xl md:text-3xl"
-            >
-              {profile.title}
-            </motion.p>
+              <div className="min-w-0">
+                <motion.h1
+                  variants={item}
+                  className="text-3xl font-extrabold leading-[1.05] tracking-tight text-balance sm:text-5xl md:text-6xl"
+                >
+                  {profile.fullName}
+                </motion.h1>
+
+                <motion.p
+                  variants={item}
+                  className="mt-2 text-base font-semibold tracking-tight text-primary sm:text-xl md:text-2xl"
+                >
+                  {profile.title}
+                </motion.p>
+              </div>
+            </div>
 
             <motion.p
               variants={item}
@@ -94,28 +111,6 @@ export function Hero({ profile }: { profile: Profile }) {
               <span className="text-accent">&gt;</span> {profile.tagline}
             </motion.p>
           </div>
-
-          <motion.div
-            variants={item}
-            className="order-first mx-auto w-full max-w-[240px] sm:max-w-[280px] lg:order-last lg:mx-0 lg:max-w-none"
-          >
-            <div className="group relative isolate">
-              <div
-                aria-hidden="true"
-                className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-tr from-primary/25 via-accent/5 to-primary/15 opacity-40 blur-2xl transition-opacity duration-500 group-hover:opacity-60"
-              />
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-border/70 bg-muted shadow-[0_24px_70px_-28px_rgba(0,0,0,0.55)] ring-1 ring-primary/20 transition-shadow duration-500 group-hover:ring-primary/35 group-hover:shadow-[0_24px_70px_-28px_rgba(0,0,0,0.55),0_0_36px_-14px_oklch(0.52_0.21_228/0.45)]">
-                <Image
-                  src="/nebapic.jpg"
-                  alt={`Portrait of ${profile.fullName}`}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 360px, (min-width: 640px) 280px, 240px"
-                  className="object-cover object-[center_25%] grayscale transition-transform duration-700 will-change-transform group-hover:scale-[1.03]"
-                />
-              </div>
-            </div>
-          </motion.div>
         </div>
       </motion.div>
 
