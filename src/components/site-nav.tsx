@@ -17,6 +17,14 @@ const links = [
   { href: "/build-log", label: "Build Log" },
 ];
 
+/**
+ * Smooth-scrolls to the `#section` named in `href`.
+ *
+ * The scroll is deliberately deferred by one painted frame: when the mobile menu
+ * closes in the same click, the browser cancels a smooth scroll that starts in
+ * the same frame as that layout change — which made every tap in the mobile
+ * menu appear to do nothing.
+ */
 function scrollToHash(event: MouseEvent<HTMLAnchorElement>, href: string) {
   const hashIndex = href.indexOf("#");
   if (hashIndex === -1) return;
@@ -24,8 +32,13 @@ function scrollToHash(event: MouseEvent<HTMLAnchorElement>, href: string) {
   if (!id) return;
   const target = document.getElementById(id);
   if (!target) return;
+
   event.preventDefault();
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 }
 
 export function SiteNav() {
@@ -63,13 +76,11 @@ export function SiteNav() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/#contact"
-            onClick={(e) => scrollToHash(e, "/#contact")}
-            className="ml-2"
-          >
-            <Button size="sm">Contact</Button>
-          </Link>
+          <Button asChild size="sm" className="ml-2">
+            <Link href="/#contact" onClick={(e) => scrollToHash(e, "/#contact")}>
+              Contact
+            </Link>
+          </Button>
           <ThemeToggle />
         </div>
 
@@ -109,18 +120,17 @@ export function SiteNav() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/#contact"
-                onClick={(e) => {
-                  scrollToHash(e, "/#contact");
-                  setOpen(false);
-                }}
-                className="mt-1"
-              >
-                <Button size="sm" className="w-full">
+              <Button asChild size="sm" className="mt-1 w-full">
+                <Link
+                  href="/#contact"
+                  onClick={(e) => {
+                    scrollToHash(e, "/#contact");
+                    setOpen(false);
+                  }}
+                >
                   Contact
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </motion.div>
         )}
