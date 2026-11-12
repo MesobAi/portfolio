@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Download, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Profile } from "@/db/schema";
@@ -100,6 +100,20 @@ export function Hero({ profile }: { profile: Profile }) {
                   <Mail className="size-4" />
                   Contact
                 </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-border/80 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary active:scale-[0.98]"
+              >
+                <a
+                  href="/Nebiyou_Daniel_Resume_Final.pdf"
+                  download="Nebiyou_Daniel_Resume_Final.pdf"
+                >
+                  <Download className="size-4" />
+                  Download Resume
+                </a>
               </Button>
             </motion.div>
 
